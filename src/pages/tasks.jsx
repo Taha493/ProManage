@@ -2,12 +2,13 @@
 import React from 'react';
 import Row from '../ui/Row';
 import TaskTable from '../ui/TaskTable';
+import TaskTableOperations from '../features/tasks/TasksOperations';
 function Tasks(){
     return(
         <>
         <Row type="horizontal">
             <h1>All Tasks</h1>
-            <p>Filter/Sort</p>
+            <TaskTableOperations/>
         </Row>
 
         <Row>

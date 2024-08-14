@@ -1,3 +1,5 @@
+/* eslint-disable react/prop-types */
+/* eslint-disable no-unused-vars */
 import React from 'react'
 import styled from "styled-components";
 import { useState } from "react";
@@ -8,6 +10,8 @@ import Button from '../../ui/Button';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { MarkAsDone } from '../../api/apiTasks';
 import toast from 'react-hot-toast';
+import Modal from '../../ui/Modal';
+import Confirmation from './Confirmation';
 
 const TableRow = styled.div`
   display: grid;
@@ -56,8 +60,13 @@ const statusToTagName = {
 
 function TaskRow({task}){
 const{id, title, description, status, deadline} = task;
-
+const [modal, setModal] = useState(false);
 const queryClient = useQueryClient();
+
+function onConfirm(){
+  mutate(id);
+  setModal(false);
+}
 
 const{isLoading, mutate} = useMutation({
     mutationFn: (id)=> MarkAsDone(id),
@@ -75,7 +84,10 @@ return(
     <div>{description}</div>
     <Tag type={statusToTagName[status]}>{status}</Tag>
     <Deadline>{formatDateandTime(deadline)}</Deadline>
-    {status==='pending' ? <Button size="small" onClick={()=> mutate(id)}>Mark as done</Button>: <Done>Marked as Done</Done>}
+    {status==='pending' ? <Button size="small" onClick={()=>setModal(true)}>Mark as done</Button>: <Done>Marked as Done</Done>}
+    {modal && <Modal onClose={()=>setModal(false)}>
+      <Confirmation onCancel={()=> setModal(false)} onConfirm={onConfirm}/>
+      </Modal>}
     </TableRow>
 )
 }

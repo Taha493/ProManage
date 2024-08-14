@@ -1,16 +1,19 @@
 // eslint-disable-next-line no-unused-vars
 import React from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
-import Dashboard from './ui/Dashboard';
+import Dashboard from './pages/Dashboard';
 import AppLayout from './ui/AppLayout';
 import GlobalStyles from './styles/GlobalStyles';
 import Notifications from './pages/notifications';
 import Meetings from './pages/meetings';
 import Tasks from './pages/tasks';
 import Settings from './pages/settings';
+import Login from "./pages/Login";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Toaster } from 'react-hot-toast';
+import PageNotFound from './pages/PageNotFound';
+import ProtectedRoute from './ui/ProtectedRoute';
 
 const queryClient = new QueryClient({
   defaultOptions:{
@@ -27,7 +30,13 @@ function App() {
     <GlobalStyles/>
     <BrowserRouter>
       <Routes>
-        <Route element={<AppLayout/>}>
+      <Route
+              element={
+                <ProtectedRoute>
+                  <AppLayout />
+                </ProtectedRoute>
+              }
+            >
         <Route index element={<Navigate replace to ="dashboard"/>}></Route>
         <Route path = 'dashboard' element={<Dashboard/>}></Route>
         <Route path = 'notifications' element={<Notifications/>}></Route>
@@ -35,6 +44,8 @@ function App() {
         <Route path = 'tasks' element={<Tasks/>}></Route>
         <Route path = 'settings' element={<Settings/>}></Route>
         </Route>
+        <Route path="login" element={<Login />} />
+        <Route path="*" element={<PageNotFound />} />
       </Routes>
     </BrowserRouter>
     <Toaster position="top-center" gutter={12} containerStyle={{margin: '8px'}} toastOptions={

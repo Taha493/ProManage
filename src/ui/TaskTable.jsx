@@ -3,6 +3,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { getTasks } from '../api/apiTasks';
 import { useQuery } from '@tanstack/react-query';
+import { useSearchParams } from "react-router-dom";
 import Spinner from './Spinner';
 import TaskRow from '../features/tasks/TaskRow';
 const Table = styled.div`
@@ -30,12 +31,20 @@ const TableHeader = styled.header`
 `;
 
 function TaskTable(){
-  const {data: tasks, error, isLoading} = useQuery({
+  const {data: tasks, isLoading} = useQuery({
     queryKey: ['task'],
     queryFn: getTasks,
   })
-
+  const [searchParams] = useSearchParams();
   if(isLoading) return <Spinner/>;
+  const filterValue = searchParams.get("status") || "all";
+
+  let filteredTasks;
+  if (filterValue === "all") filteredTasks = tasks;
+  if (filterValue === "pending")
+    filteredTasks = tasks.filter((task) => task.status === 'pending');
+  if (filterValue === "done")
+    filteredTasks = tasks.filter((task) => task.status === 'done');
   return(
     <Table role="table">
       <TableHeader role="row">
@@ -45,7 +54,7 @@ function TaskTable(){
         <div>Deadline</div>
         <div>Actions</div>
       </TableHeader>
-      {tasks.map((task)=><TaskRow task={task} key = {task.id}/>)}
+      {filteredTasks.map((task)=><TaskRow task={task} key = {task.id}/>)}
     </Table>
   )
 }

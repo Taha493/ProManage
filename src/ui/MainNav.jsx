@@ -4,12 +4,14 @@ import styled from "styled-components";
 import React from 'react';
 import {
   HiCalendarDays,
-  HiOutlineCog6Tooth,
   HiOutlineHome,
 } from "react-icons/hi2";
-
 import {IoMdNotificationsOutline  } from "react-icons/io";
+import { MdManageAccounts } from "react-icons/md";
 import { FaTasks } from "react-icons/fa";
+import { useQuery } from "@tanstack/react-query";
+import { getNotifications } from "../api/apiNotifications";
+import Spinner from "./Spinner";
 
 const NavList = styled.ul`
   display: flex;
@@ -18,18 +20,14 @@ const NavList = styled.ul`
 `;
 
 const StyledNavLink = styled(NavLink)`
-  &:link,
-  &:visited {
-    display: flex;
-    align-items: center;
-    gap: 1.2rem;
-
-    color: var(--color-grey-600);
-    font-size: 1.6rem;
-    font-weight: 500;
-    padding: 1.2rem 2.4rem;
-    transition: all 0.3s;
-  }
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  color: var(--color-grey-600);
+  font-size: 1.6rem;
+  font-weight: 500;
+  padding: 1.2rem 2.4rem;
+  transition: all 0.3s;
 
   &:hover,
   &:active,
@@ -55,7 +53,35 @@ const StyledNavLink = styled(NavLink)`
   }
 `;
 
+const Badge = styled.span`
+  position: absolute;
+  top: 1rem;
+  right: 16rem;
+  background-color: red;
+  color: white;
+  padding: 0.05px 0.05px;
+ width: 0.7rem; // Small width for a dot-like appearance
+  height: 0.7rem; // Small height for a dot-like appearance
+  border-radius: 100%;
+  font-size:0.1px;
+  display: ${props => (props.show ? 'block' : 'none')};
+`;
+
+const NotificationLink = styled(StyledNavLink)`
+  position: relative;
+`;
+
 function MainNav() {
+  const {data: notifications, isLoading} = useQuery({
+    queryKey: ['notifications'],
+    queryFn: getNotifications,
+  })
+
+   if(isLoading) return(<Spinner></Spinner>);
+  
+  const hasUnreadNotifications = notifications.some(
+    (notification) => notification.is_read === false
+  );
   return (
     <nav>
       <NavList>
@@ -66,10 +92,11 @@ function MainNav() {
           </StyledNavLink>
         </li>
         <li>
-          <StyledNavLink to="/notifications">
+        <NotificationLink to="/notifications">
             <IoMdNotificationsOutline />
             <span>Notifications</span>
-          </StyledNavLink>
+            <Badge show={hasUnreadNotifications}></Badge>
+          </NotificationLink>
         </li>
         <li>
           <StyledNavLink to="/tasks">
@@ -85,8 +112,8 @@ function MainNav() {
         </li>
         <li>
           <StyledNavLink to="/settings">
-            <HiOutlineCog6Tooth />
-            <span>Settings</span>
+            <MdManageAccounts />
+            <span>Account</span>
           </StyledNavLink>
         </li>
       </NavList>
